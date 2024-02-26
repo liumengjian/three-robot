@@ -131,13 +131,13 @@ function App() {
         Math.PI * 2
       );
       const eyeMaterial = new THREE.MeshStandardMaterial({
-        color: 0x000000,
+        color: 0x212121,
         roughness: 0.5,
         metalness: 1.0,
       });
       const eyeMesh = new THREE.Mesh(eye, eyeMaterial);
       eyeMesh.position.y = y;
-      eyeMesh.rotation.x = x;
+      eyeMesh.position.x = x;
       eyeMesh.position.z = z;
       robot.add(eyeMesh);
     };
@@ -148,12 +148,36 @@ function App() {
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.update();
 
-    // 动画循环渲染函数
+    /***************************************周围粒子****************************************/
+    const stars = new THREE.Object3D();
+    const obj = new THREE.SphereGeometry(0.2, 3, 3);
+    const material = new THREE.MeshStandardMaterial({
+      color: 0x43b988,
+      roughness: 0.1,
+      metalness: 5,
+    })
+    const mesh = new THREE.Mesh(obj, material);
+
+    for (let i = 0; i < 1000; i++) {
+      const target = new THREE.Mesh();
+      target.copy(mesh);
+      target.position.x = Math.floor(Math.random() * 15) + Math.floor(Math.random() * -15);
+      target.position.y = Math.floor(Math.random() * 15) + Math.floor(Math.random() * -15);
+      target.position.z = Math.floor(Math.random() * 15) + Math.floor(Math.random() * -15);
+      stars.add(target);
+    }
+    scene.add(stars);
+
+
+    /***************************************动画循环渲染函数****************************************/
     const animate = () => {
       requestAnimationFrame(animate);
+      robot.rotation.y -= 0.005;
+      stars.rotation.y += 0.01;
+      stars.rotation.x += 0.01;
+      stars.rotation.z += 0.01;
       renderer.render(scene, camera);
     };
-
     animate(); // 开始动画循环
 
     // 清理函数
@@ -164,6 +188,7 @@ function App() {
         containerRef.current.removeChild(renderer.domElement);
       }
     };
+    
   }, [containerRef]);
   
   return <div className="app" ref={containerRef}></div>;
